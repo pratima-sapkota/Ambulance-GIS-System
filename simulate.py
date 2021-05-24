@@ -1,3 +1,10 @@
+"""
+Ambulance GIS System - Simulation Module
+
+Handles the simulation environment setup, graph generation from CSV data,
+and orchestrates the ambulance navigation simulation.
+"""
+
 from Ambulance import Ambulance
 from RoadMap import RoadMap
 import networkx as nx
@@ -5,16 +12,47 @@ import csv
 import math
 import simpy
 import matplotlib.pyplot as plt
+from typing import Tuple
 
 fig = plt.figure()
 
 
-def find_distance(p1, p2):
+def find_distance(p1: Tuple[int, int], p2: Tuple[int, int]) -> float:
+    """
+    Calculate the Euclidean distance between two points.
+
+    Args:
+        p1: First point as (x, y) tuple.
+        p2: Second point as (x, y) tuple.
+
+    Returns:
+        The Euclidean distance between the two points.
+    """
     return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
 
-def main_function(source, destination, ambulance_speed):
-    def generate_graph():
+def main_function(source: Tuple[int, int], destination: Tuple[int, int], ambulance_speed: int) -> None:
+    """
+    Main entry point for the ambulance simulation.
+
+    Creates the road network graph from CSV files, initializes the simulation
+    environment, and runs the ambulance navigation.
+
+    Args:
+        source: Starting coordinates as (x, y) tuple.
+        destination: Target coordinates as (x, y) tuple.
+        ambulance_speed: Speed of the ambulance in simulation units.
+    """
+    def generate_graph() -> nx.Graph:
+        """
+        Generate a NetworkX graph from CSV data files.
+
+        Reads points.csv for nodes (with traffic congestion data) and
+        roads.csv for edges (with distance weights).
+
+        Returns:
+            A NetworkX Graph representing the road network.
+        """
         myGraph = nx.Graph()
 
         # context manager, so that when we are done reading the file, it is closed

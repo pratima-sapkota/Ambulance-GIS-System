@@ -1,4 +1,12 @@
+"""
+Ambulance GIS System - Ambulance Module
+
+Defines the Ambulance class which handles ambulance movement simulation,
+pathfinding, and visualization of the ambulance on the road map.
+"""
+
 import math
+from typing import Tuple, Dict, List, Any, Generator
 from sympy import symbols, Eq, solve  # for solving equations
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -6,12 +14,49 @@ from collections import defaultdict
 from matplotlib.lines import Line2D
 
 
-def find_distance(p1, p2):
+def find_distance(p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
+    """
+    Calculate the Euclidean distance between two points.
+
+    Args:
+        p1: First point as (x, y) tuple.
+        p2: Second point as (x, y) tuple.
+
+    Returns:
+        The Euclidean distance between the two points.
+    """
     return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
 
-class Ambulance(object):
-    def __init__(self, env, road_map, speed, source, destination):
+class Ambulance:
+    """
+    Represents an ambulance navigating through a road network.
+
+    The ambulance finds optimal paths based on distance and traffic,
+    moves along the road network, and visualizes its progress.
+
+    Attributes:
+        speed: Movement speed of the ambulance in simulation units.
+        source: Starting position as (x, y) coordinates.
+        destination: Target position as (x, y) coordinates.
+        position: Current position as (x, y) coordinates.
+        env: SimPy simulation environment.
+        road_map: RoadMap instance containing the road network graph.
+        best_path: Current best path to destination.
+    """
+
+    def __init__(self, env: Any, road_map: Any, speed: int,
+                 source: Tuple[int, int], destination: Tuple[int, int]) -> None:
+        """
+        Initialize an Ambulance instance.
+
+        Args:
+            env: SimPy simulation environment.
+            road_map: RoadMap instance containing the road network.
+            speed: Movement speed of the ambulance.
+            source: Starting coordinates as (x, y) tuple.
+            destination: Target coordinates as (x, y) tuple.
+        """
         self.speed = speed
         self.source = source
         self.destination = destination
@@ -20,8 +65,17 @@ class Ambulance(object):
         self.road_map = road_map
         self.draw_road_map()
 
-    # to travel from source node to destination
-    def drive_to_destination(self):
+    def drive_to_destination(self) -> Generator[Any, None, None]:
+        """
+        Drive the ambulance from source to destination.
+
+        This is a SimPy generator that yields timeout events as the
+        ambulance moves along the optimal path, recalculating the
+        best route at each node based on current traffic conditions.
+
+        Yields:
+            SimPy timeout events representing travel time between positions.
+        """
         final_best_path = [self.source]
         while not self.position == self.destination:
             self.best_path = self.road_map.select_best_path(self.position, self.destination)
@@ -83,11 +137,17 @@ class Ambulance(object):
                                     labels=my_labels, font_color='black', font_size=10)
 
             legend_elements = [Line2D([0], [0], color='b',alpha=0.5, lw=4, label='Best Path'),
-                   Line2D([0], [0], marker='o', color='w',markerfacecolor='r', markersize=12,label='Ambuance Position')]  
+                   Line2D([0], [0], marker='o', color='w',markerfacecolor='r', markersize=12,label='Ambuance Position')]
             plt.legend(handles=legend_elements, loc='upper right')
         print(final_best_path)
 
-    def draw_road_map(self):
+    def draw_road_map(self) -> None:
+        """
+        Draw the initial road map visualization.
+
+        Displays all nodes with their names and traffic congestion levels,
+        and all edges representing roads. Sets up the matplotlib interactive mode.
+        """
         positions = self.get_node_positions()
 
         plt.clf()
@@ -113,14 +173,28 @@ class Ambulance(object):
         plt.show()
         plt.pause(0.1)
 
-    def get_node_positions(self):
+    def get_node_positions(self) -> Dict[Tuple[int, int], Tuple[int, int]]:
+        """
+        Get the positions of all nodes in the graph.
+
+        For this road map, node positions are the same as their coordinate keys.
+
+        Returns:
+            Dictionary mapping node coordinates to their display positions.
+        """
         positions = dict()
         for node in self.road_map.graph.nodes:
             positions[node] = node
 
         return positions
 
-    def get_edge_list_from_path(self):
+    def get_edge_list_from_path(self) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
+        """
+        Convert the best path to a list of edges.
+
+        Returns:
+            List of edge tuples, where each edge is a pair of node coordinates.
+        """
         best_path_edge = list()
         for i in range((len(self.best_path) - 1)):
             temp_edge = (self.best_path[i], self.best_path[i + 1])
@@ -128,7 +202,15 @@ class Ambulance(object):
 
         return best_path_edge
 
-    def draw_best_path_edge(self):
+    def draw_best_path_edge(self) -> Any:
+        """
+        Draw the current best path on the map.
+
+        Highlights the optimal route with a thick blue line.
+
+        Returns:
+            The matplotlib path object that can be removed later.
+        """
         best_path_edge = self.get_edge_list_from_path()
 
         path = nx.draw_networkx_edges(self.road_map.graph, pos=self.get_node_positions(),
@@ -136,4 +218,3 @@ class Ambulance(object):
                                       width=8, alpha=0.4, edge_color='blue')
         plt.pause(0.1)
         return path
-
