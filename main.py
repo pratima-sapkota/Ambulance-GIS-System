@@ -9,8 +9,10 @@ import tkinter as tk
 from tkinter import ttk
 import csv
 
+from config import paths, ui_config
+
 window = tk.Tk()
-window.configure(background='light blue')
+window.configure(background=ui_config.BACKGROUND_COLOR)
 
 
 def start() -> None:
@@ -23,7 +25,7 @@ def start() -> None:
     if (destination.get() == "" and source.get() == "") or (destination.get() == source.get()):
         print("empty/invalid inputs")
 
-    with open("points.csv", "r") as f:
+    with open(paths.POINTS_FILE, "r") as f:
         roads = csv.reader(f)
         next(roads)
         for row in roads:
@@ -40,43 +42,42 @@ def start() -> None:
 
 var = tk.StringVar()
 var.set("Pulchowk")
-data=("Pulchowk", "Baneswor", "Thapathali", "Maitighar","Gwarko","Patan","RNAC","Balaju","Kapan","Chabel")
 
 
-
-lbl = tk.Label(window, text="Ambulance GIS System", fg='black', font=("Helvetica", 20), bg='light blue')
+lbl = tk.Label(window, text=ui_config.WINDOW_TITLE, fg='black', font=("Helvetica", 20),
+               bg=ui_config.BACKGROUND_COLOR)
 lbl.place(x=70, y=20)
 
 lbl1 = tk.Label(window, text=">> Enter your location speed and destination", fg='black', font=("Helvetica", 8),
-             bg='light blue')
+             bg=ui_config.BACKGROUND_COLOR)
 lbl1.place(x=80, y=100)
 lbl2 = tk.Label(window, text=">> See Realtime Traffic at different places", fg='black', font=("Helvetica", 8),
-             bg='light blue')
+             bg=ui_config.BACKGROUND_COLOR)
 lbl2.place(x=80, y=120)
 lbl3 = tk.Label(window, text=">> Get the best path suggested in the map", fg='black', font=("Helvetica", 8),
-             bg='light blue')
+             bg=ui_config.BACKGROUND_COLOR)
 lbl3.place(x=80, y=140)
 
-lbl4 = tk.Label(window, text="Destination", fg='black', font=("Helvetica", 10), bg='light blue')
+lbl4 = tk.Label(window, text="Destination", fg='black', font=("Helvetica", 10), bg=ui_config.BACKGROUND_COLOR)
 lbl4.place(x=160, y=180)
 
-destination = ttk.Combobox(window, values=data)
+destination = ttk.Combobox(window, values=ui_config.LOCATIONS)
 destination.place(x=130, y=200)
 
-lbl5 = tk.Label(window, text="Speed", fg='black', font=("Helvetica", 10), bg='light blue')
+lbl5 = tk.Label(window, text="Speed", fg='black', font=("Helvetica", 10), bg=ui_config.BACKGROUND_COLOR)
 lbl5.place(x=160, y=230)
 speed = tk.Entry()
 speed.place(x=140, y=250)
 
-lbl5 = tk.Label(window, text="Where are you?", fg='black', font=("Helvetica", 10), bg='light blue')
+lbl5 = tk.Label(window, text="Where are you?", fg='black', font=("Helvetica", 10), bg=ui_config.BACKGROUND_COLOR)
 lbl5.place(x=150, y=280)
 
-source = ttk.Combobox(window, values=data)
+source = ttk.Combobox(window, values=ui_config.LOCATIONS)
 source.place(x=130, y=300)
 
 btn = tk.Button(window, text="Start Driving", fg='white', bg='black', command=start)
 btn.place(x=160, y=400)
 
-window.title('Ambulance GIS System')
-window.geometry("400x500+10+10")
+window.title(ui_config.WINDOW_TITLE)
+window.geometry(ui_config.WINDOW_SIZE)
 window.mainloop()

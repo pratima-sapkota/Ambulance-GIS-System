@@ -9,6 +9,8 @@ import networkx as nx
 import random
 from typing import Dict, List, Tuple, Optional
 
+from config import simulation_config
+
 
 class RoadMap:
     """
@@ -123,7 +125,8 @@ class RoadMap:
             for path, cost_traffic in path_with_cost_traffic.items():
                 # normalizing path cost
                 normalized_path_cost = (cost_traffic[0] / max_path_cost) * 100
-                total_cost = 0.5 * normalized_path_cost + cost_traffic[1] * 2
+                total_cost = (simulation_config.PATH_COST_WEIGHT * normalized_path_cost +
+                             cost_traffic[1] * simulation_config.TRAFFIC_WEIGHT)
                 cost_traffic.append(total_cost)
 
             # min function only returns a single value even if multiple min exists. So, no handling is done.
