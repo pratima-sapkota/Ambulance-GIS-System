@@ -9,26 +9,13 @@ from Ambulance import Ambulance
 from RoadMap import RoadMap
 import networkx as nx
 import csv
-import math
 import simpy
 import matplotlib.pyplot as plt
 from typing import Tuple
 
+from utils import calculate_distance
+
 fig = plt.figure()
-
-
-def find_distance(p1: Tuple[int, int], p2: Tuple[int, int]) -> float:
-    """
-    Calculate the Euclidean distance between two points.
-
-    Args:
-        p1: First point as (x, y) tuple.
-        p2: Second point as (x, y) tuple.
-
-    Returns:
-        The Euclidean distance between the two points.
-    """
-    return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
 
 def main_function(source: Tuple[int, int], destination: Tuple[int, int], ambulance_speed: int) -> None:
@@ -71,7 +58,7 @@ def main_function(source: Tuple[int, int], destination: Tuple[int, int], ambulan
             for row in roads:
                 p1 = (int(row[1]), int(row[2]))
                 p2 = (int(row[3]), int(row[4]))
-                distance = find_distance(p1, p2)
+                distance = calculate_distance(p1, p2)
                 myGraph.add_edge(p1, p2, weight=distance)
         return myGraph
 

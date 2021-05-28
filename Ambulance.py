@@ -5,7 +5,6 @@ Defines the Ambulance class which handles ambulance movement simulation,
 pathfinding, and visualization of the ambulance on the road map.
 """
 
-import math
 from typing import Tuple, Dict, List, Any, Generator
 from sympy import symbols, Eq, solve  # for solving equations
 import matplotlib.pyplot as plt
@@ -13,19 +12,7 @@ import networkx as nx
 from collections import defaultdict
 from matplotlib.lines import Line2D
 
-
-def find_distance(p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
-    """
-    Calculate the Euclidean distance between two points.
-
-    Args:
-        p1: First point as (x, y) tuple.
-        p2: Second point as (x, y) tuple.
-
-    Returns:
-        The Euclidean distance between the two points.
-    """
-    return math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
+from utils import calculate_distance
 
 
 class Ambulance:
@@ -95,7 +82,7 @@ class Ambulance:
                 for p in point:
                     p.set_visible(False)
 
-                dist_from_next_node = find_distance(self.position, next_node)
+                dist_from_next_node = calculate_distance(self.position, next_node)
                 if dist_from_next_node <= self.speed:
                     time_to_reach_dest = dist_from_next_node / self.speed
 
@@ -111,7 +98,7 @@ class Ambulance:
                         # x, y have already been used as symbols above!
                         x1 = x_val.evalf()
                         y1 = y_val.evalf()
-                        dist_with_next_node[(x1, y1)] = find_distance((x1, y1), next_node)
+                        dist_with_next_node[(x1, y1)] = calculate_distance((x1, y1), next_node)
                     yield self.env.timeout(1)
 
                     # the above two equations solve for two co-ordinate pairs,
