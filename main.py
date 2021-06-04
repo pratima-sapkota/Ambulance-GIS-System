@@ -6,10 +6,16 @@ finding optimal paths based on distance and traffic congestion.
 """
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import csv
 
 from config import paths, ui_config
+from validators import (
+    ValidationError,
+    validate_location,
+    validate_speed,
+    validate_route,
+)
 
 window = tk.Tk()
 window.configure(background=ui_config.BACKGROUND_COLOR)
@@ -22,22 +28,40 @@ def start() -> None:
     Reads source and destination locations from the UI, validates input,
     and launches the simulation with the specified parameters.
     """
-    if (destination.get() == "" and source.get() == "") or (destination.get() == source.get()):
-        print("empty/invalid inputs")
+    try:
+        # Validate inputs
+        validate_location(source.get(), "Source")
+        validate_location(destination.get(), "Destination")
+        validate_route(source.get(), destination.get())
+        s = validate_speed(speed.get())
 
-    with open(paths.POINTS_FILE, "r") as f:
-        roads = csv.reader(f)
-        next(roads)
-        for row in roads:
-            if destination.get() == row[6]:
-                dest = (int(row[0]), int(row[1]))
-            if source.get() == row[6]:
-                sour = (int(row[0]), int(row[1]))
-        s = int(speed.get())
+        # Parse coordinates from CSV
+        sour = None
+        dest = None
 
-    # calling the main funtion in main.py ... we have to make main_function in main.py
-    import simulate as sim
-    sim.main_function(sour, dest, s)
+        with open(paths.POINTS_FILE, "r") as f:
+            roads = csv.reader(f)
+            next(roads)
+            for row in roads:
+                if destination.get() == row[6]:
+                    dest = (int(row[0]), int(row[1]))
+                if source.get() == row[6]:
+                    sour = (int(row[0]), int(row[1]))
+
+        if sour is None or dest is None:
+            messagebox.showerror("Error", "Could not find coordinates for selected locations")
+            return
+
+        # Start the simulation
+        import simulate as sim
+        sim.main_function(sour, dest, s)
+
+    except ValidationError as e:
+        messagebox.showerror("Validation Error", e.message)
+    except FileNotFoundError:
+        messagebox.showerror("Error", f"Data file not found: {paths.POINTS_FILE}")
+    except Exception as e:
+        messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
 
 
 var = tk.StringVar()

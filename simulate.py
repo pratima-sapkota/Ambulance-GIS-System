@@ -19,6 +19,11 @@ from config import paths, simulation_config
 fig = plt.figure()
 
 
+class SimulationError(Exception):
+    """Exception raised when simulation encounters an error."""
+    pass
+
+
 def main_function(source: Tuple[int, int], destination: Tuple[int, int], ambulance_speed: int) -> None:
     """
     Main entry point for the ambulance simulation.
@@ -30,6 +35,9 @@ def main_function(source: Tuple[int, int], destination: Tuple[int, int], ambulan
         source: Starting coordinates as (x, y) tuple.
         destination: Target coordinates as (x, y) tuple.
         ambulance_speed: Speed of the ambulance in simulation units.
+
+    Raises:
+        SimulationError: If data files cannot be loaded or are invalid.
     """
     def generate_graph() -> nx.Graph:
         """
@@ -40,27 +48,43 @@ def main_function(source: Tuple[int, int], destination: Tuple[int, int], ambulan
 
         Returns:
             A NetworkX Graph representing the road network.
+
+        Raises:
+            SimulationError: If data files cannot be read or parsed.
         """
         myGraph = nx.Graph()
 
-        # context manager, so that when we are done reading the file, it is closed
-        with open(paths.POINTS_FILE, "r") as f:
-            points = csv.reader(f)
+        try:
+            # context manager, so that when we are done reading the file, it is closed
+            with open(paths.POINTS_FILE, "r") as f:
+                points = csv.reader(f)
 
-            # to skip the first row containing headers
-            next(points)
+                # to skip the first row containing headers
+                next(points)
 
-            for row in points:
-                myGraph.add_node((int(row[0]), int(row[1])), traffic_cong=int(row[2]), name=row[6])
+                for row in points:
+                    myGraph.add_node((int(row[0]), int(row[1])), traffic_cong=int(row[2]), name=row[6])
 
-        with open(paths.ROADS_FILE, "r") as f:
-            roads = csv.reader(f)
-            next(roads)
-            for row in roads:
-                p1 = (int(row[1]), int(row[2]))
-                p2 = (int(row[3]), int(row[4]))
-                distance = calculate_distance(p1, p2)
-                myGraph.add_edge(p1, p2, weight=distance)
+        except FileNotFoundError:
+            raise SimulationError(f"Points data file not found: {paths.POINTS_FILE}")
+        except (IndexError, ValueError) as e:
+            raise SimulationError(f"Invalid data in points file: {e}")
+
+        try:
+            with open(paths.ROADS_FILE, "r") as f:
+                roads = csv.reader(f)
+                next(roads)
+                for row in roads:
+                    p1 = (int(row[1]), int(row[2]))
+                    p2 = (int(row[3]), int(row[4]))
+                    distance = calculate_distance(p1, p2)
+                    myGraph.add_edge(p1, p2, weight=distance)
+
+        except FileNotFoundError:
+            raise SimulationError(f"Roads data file not found: {paths.ROADS_FILE}")
+        except (IndexError, ValueError) as e:
+            raise SimulationError(f"Invalid data in roads file: {e}")
+
         return myGraph
 
     myGraph = generate_graph()
