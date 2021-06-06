@@ -10,6 +10,7 @@ import random
 from typing import Dict, List, Tuple, Optional
 
 from config import simulation_config
+from logger import app_logger
 
 
 class RoadMap:
@@ -97,8 +98,7 @@ class RoadMap:
                                            self.find_path_traffic(path)]
 
         else:
-            # you can throw exception if you want
-            print("No path exists")
+            app_logger.warning(f"No path exists between {source} and {destiny}")
         return path_costs
 
     def select_best_path(self, source: Tuple[int, int],
@@ -133,5 +133,5 @@ class RoadMap:
             min_tot_cost_path = min(path_with_cost_traffic.items(), key=lambda x: x[1][2])
             return min_tot_cost_path[0]
         else:
-            print("No path exists")
+            app_logger.warning(f"No path exists between {source} and {destiny}")
             return tuple()

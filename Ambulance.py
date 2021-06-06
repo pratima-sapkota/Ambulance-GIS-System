@@ -13,6 +13,7 @@ from collections import defaultdict
 from matplotlib.lines import Line2D
 
 from utils import calculate_distance
+from logger import app_logger
 
 
 class Ambulance:
@@ -126,7 +127,7 @@ class Ambulance:
             legend_elements = [Line2D([0], [0], color='b',alpha=0.5, lw=4, label='Best Path'),
                    Line2D([0], [0], marker='o', color='w',markerfacecolor='r', markersize=12,label='Ambuance Position')]
             plt.legend(handles=legend_elements, loc='upper right')
-        print(final_best_path)
+        app_logger.info(f"Journey complete. Path taken: {final_best_path}")
 
     def draw_road_map(self) -> None:
         """
