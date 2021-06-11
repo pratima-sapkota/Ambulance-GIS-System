@@ -12,8 +12,8 @@ import networkx as nx
 from collections import defaultdict
 from matplotlib.lines import Line2D
 
-from utils import calculate_distance
-from logger import app_logger
+from ambulance_gis.utils.geometry import calculate_distance
+from ambulance_gis.utils.logger import app_logger
 
 
 class Ambulance:

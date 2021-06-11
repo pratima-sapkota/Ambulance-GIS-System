@@ -11,9 +11,9 @@ from typing import Tuple
 @dataclass(frozen=True)
 class Paths:
     """File path configuration."""
-    DATA_DIR: str = "."
-    POINTS_FILE: str = "points.csv"
-    ROADS_FILE: str = "roads.csv"
+    DATA_DIR: str = "data"
+    POINTS_FILE: str = "data/points.csv"
+    ROADS_FILE: str = "data/roads.csv"
 
 
 @dataclass(frozen=True)

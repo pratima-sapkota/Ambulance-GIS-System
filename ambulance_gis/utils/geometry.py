@@ -1,7 +1,7 @@
 """
-Ambulance GIS System - Utility Functions
+Ambulance GIS System - Geometry Utilities
 
-Shared utility functions used across the application.
+Provides geometric calculations for the application.
 """
 
 import math

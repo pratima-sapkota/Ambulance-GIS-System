@@ -10,7 +10,7 @@ import random
 from typing import Dict, List, Tuple, Optional
 
 from config import simulation_config
-from logger import app_logger
+from ambulance_gis.utils.logger import app_logger
 
 
 class RoadMap:

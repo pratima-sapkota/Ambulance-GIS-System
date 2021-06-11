@@ -5,15 +5,15 @@ Handles the simulation environment setup, graph generation from CSV data,
 and orchestrates the ambulance navigation simulation.
 """
 
-from Ambulance import Ambulance
-from RoadMap import RoadMap
+from ambulance_gis.core.ambulance import Ambulance
+from ambulance_gis.core.road_map import RoadMap
 import networkx as nx
 import csv
 import simpy
 import matplotlib.pyplot as plt
 from typing import Tuple
 
-from utils import calculate_distance
+from ambulance_gis.utils.geometry import calculate_distance
 from config import paths, simulation_config
 
 fig = plt.figure()
