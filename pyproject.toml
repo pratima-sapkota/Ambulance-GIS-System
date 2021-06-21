@@ -3,7 +3,7 @@ name = "ambulance-gis-system"
 version = "1.0.0"
 description = "Simulation of a real-time system to find the best path for ambulances"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
     {name = "Ambulance GIS Team"}
@@ -14,7 +14,6 @@ classifiers = [
     "Intended Audience :: Education",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -51,7 +50,7 @@ include = ["ambulance_gis*"]
 
 [tool.black]
 line-length = 100
-target-version = ["py38", "py39", "py310", "py311", "py312"]
+target-version = ["py39", "py310", "py311", "py312"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -71,7 +70,7 @@ known_first_party = ["ambulance_gis"]
 skip = [".git", ".mypy_cache", ".pytest_cache", "__pycache__", "venv", ".venv"]
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true

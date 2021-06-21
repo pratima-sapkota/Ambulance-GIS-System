@@ -6,9 +6,31 @@ Handles all matplotlib visualization for the road map and ambulance movement.
 
 from typing import Tuple, Dict, List, Any, Optional
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.collections import PathCollection
 import networkx as nx
 from collections import defaultdict
 from matplotlib.lines import Line2D
+import numpy as np
+
+
+# Color palette for the map (light theme)
+COLORS = {
+    'background': '#f8f9fa',
+    'road': '#adb5bd',
+    'road_edge': '#dee2e6',
+    'node': '#4a90d9',
+    'node_edge': '#2171b5',
+    'path': '#e63946',
+    'path_glow': '#e63946',
+    'ambulance': '#e63946',
+    'ambulance_glow': '#ff6b6b',
+    'start': '#2d9a4e',
+    'text': '#212529',
+    'text_shadow': '#adb5bd',
+    'legend_bg': '#ffffff',
+    'legend_edge': '#dee2e6',
+}
 
 
 class MapRenderer:
@@ -34,6 +56,24 @@ class MapRenderer:
         self.road_map = road_map
         self.current_path_artist: Optional[Any] = None
         self.current_position_artist: Optional[List[Any]] = None
+        self._setup_style()
+
+    def _setup_style(self) -> None:
+        """Configure matplotlib style for a modern light theme."""
+        plt.style.use('seaborn-v0_8-whitegrid')
+        plt.rcParams.update({
+            'figure.facecolor': COLORS['background'],
+            'axes.facecolor': COLORS['background'],
+            'axes.edgecolor': COLORS['road'],
+            'axes.labelcolor': COLORS['text'],
+            'text.color': COLORS['text'],
+            'xtick.color': COLORS['text'],
+            'ytick.color': COLORS['text'],
+            'grid.color': COLORS['road'],
+            'grid.alpha': 0.3,
+            'font.family': 'sans-serif',
+            'font.size': 10,
+        })
 
     def get_node_positions(self) -> Dict[Tuple[int, int], Tuple[int, int]]:
         """
@@ -67,13 +107,27 @@ class MapRenderer:
         return my_labels
 
     def _draw_legend(self) -> None:
-        """Draw the map legend."""
+        """Draw a styled map legend."""
         legend_elements = [
-            Line2D([0], [0], color='b', alpha=0.5, lw=4, label='Best Path'),
-            Line2D([0], [0], marker='o', color='w', markerfacecolor='r',
-                   markersize=12, label='Ambulance Position')
+            Line2D([0], [0], color=COLORS['path'], alpha=0.8, lw=4,
+                   label='Optimal Route', linestyle='-'),
+            Line2D([0], [0], marker='o', color='none',
+                   markerfacecolor=COLORS['ambulance'], markeredgecolor=COLORS['ambulance_glow'],
+                   markersize=12, markeredgewidth=2, label='Ambulance'),
+            Line2D([0], [0], marker='o', color='none',
+                   markerfacecolor=COLORS['start'], markeredgecolor='white',
+                   markersize=10, markeredgewidth=1, label='Start Point'),
         ]
-        plt.legend(handles=legend_elements, loc='upper right')
+        legend = plt.legend(
+            handles=legend_elements,
+            loc='upper right',
+            facecolor=COLORS['legend_bg'],
+            edgecolor=COLORS['legend_edge'],
+            framealpha=0.9,
+            fontsize=9,
+            labelcolor=COLORS['text'],
+        )
+        legend.get_frame().set_linewidth(1.5)
 
     def draw_initial_map(self) -> None:
         """
@@ -85,6 +139,10 @@ class MapRenderer:
         positions = self.get_node_positions()
 
         plt.clf()
+        fig = plt.gcf()
+        fig.set_facecolor(COLORS['background'])
+        ax = plt.gca()
+        ax.set_facecolor(COLORS['background'])
 
         try:
             plt.get_current_fig_manager().window.state('zoomed')
@@ -94,18 +152,56 @@ class MapRenderer:
 
         my_labels = self._get_node_labels()
 
-        nx.draw(self.road_map.graph, with_labels=False, pos=positions)
+        # Draw edges with styled appearance
+        nx.draw_networkx_edges(
+            self.road_map.graph,
+            pos=positions,
+            edge_color=COLORS['road'],
+            width=2.5,
+            alpha=0.7,
+            style='solid',
+        )
+
+        # Draw nodes with gradient-like effect (outer glow)
+        nx.draw_networkx_nodes(
+            self.road_map.graph,
+            pos=positions,
+            node_color=COLORS['node'],
+            node_size=400,
+            edgecolors=COLORS['node_edge'],
+            linewidths=2,
+            alpha=0.9,
+        )
+
+        # Draw labels with better styling
         nx.draw_networkx_labels(
-            self.road_map.graph.nodes,
+            self.road_map.graph,
             pos=positions,
             labels=my_labels,
-            font_color='black',
-            font_size=10
+            font_color=COLORS['text'],
+            font_size=8,
+            font_weight='bold',
+        )
+
+        # Add title
+        plt.title(
+            'Ambulance GIS - Real-time Navigation',
+            fontsize=14,
+            fontweight='bold',
+            color=COLORS['text'],
+            pad=15,
         )
 
         self._draw_legend()
 
+        # Remove axis clutter
+        ax.set_axis_off()
+
+        # Add subtle padding
+        ax.margins(0.1)
+
         plt.ion()
+        plt.tight_layout()
         plt.show()
         plt.pause(0.1)
 
@@ -126,11 +222,33 @@ class MapRenderer:
             for p in self.current_position_artist:
                 p.set_visible(False)
 
-        # Draw new position
-        self.current_position_artist = plt.plot(
+        # Map color shortcuts to our palette
+        marker_color = COLORS['start'] if color == 'g' else COLORS['ambulance']
+        glow_color = COLORS['start'] if color == 'g' else COLORS['ambulance_glow']
+
+        # Draw outer glow effect
+        glow = plt.plot(
             position[0], position[1],
-            marker='o', color=color, markersize=12
+            marker='o', color=glow_color, markersize=20,
+            alpha=0.3, zorder=5
         )
+
+        # Draw main ambulance marker
+        main = plt.plot(
+            position[0], position[1],
+            marker='o', color=marker_color, markersize=14,
+            markeredgecolor='white', markeredgewidth=2,
+            zorder=6
+        )
+
+        # Draw inner highlight
+        inner = plt.plot(
+            position[0], position[1],
+            marker='o', color='white', markersize=5,
+            alpha=0.8, zorder=7
+        )
+
+        self.current_position_artist = glow + main + inner
         plt.pause(0.1)
 
     def draw_best_path(
@@ -138,7 +256,7 @@ class MapRenderer:
         path: List[Tuple[Tuple[int, int], Tuple[int, int]]]
     ) -> Any:
         """
-        Draw the current best path on the map.
+        Draw the current best path on the map with a glowing effect.
 
         Args:
             path: List of edge tuples representing the path.
@@ -148,23 +266,55 @@ class MapRenderer:
         """
         positions = self.get_node_positions()
 
+        # Draw outer glow layer
+        glow_artist = nx.draw_networkx_edges(
+            self.road_map.graph,
+            pos=positions,
+            edgelist=path,
+            width=14,
+            alpha=0.15,
+            edge_color=COLORS['path_glow'],
+            style='solid',
+        )
+
+        # Draw middle glow layer
+        mid_glow_artist = nx.draw_networkx_edges(
+            self.road_map.graph,
+            pos=positions,
+            edgelist=path,
+            width=10,
+            alpha=0.3,
+            edge_color=COLORS['path_glow'],
+            style='solid',
+        )
+
+        # Draw main path
         path_artist = nx.draw_networkx_edges(
             self.road_map.graph,
             pos=positions,
             edgelist=path,
-            width=8,
-            alpha=0.4,
-            edge_color='blue'
+            width=5,
+            alpha=0.9,
+            edge_color=COLORS['path'],
+            style='solid',
         )
+
         plt.pause(0.1)
 
-        self.current_path_artist = path_artist
+        # Store all artists for removal
+        self.current_path_artist = (glow_artist, mid_glow_artist, path_artist)
         return path_artist
 
     def clear_current_path(self) -> None:
         """Remove the current path highlight from the map."""
         if self.current_path_artist:
-            self.current_path_artist.remove()
+            # Handle tuple of artists (glow layers + main path)
+            if isinstance(self.current_path_artist, tuple):
+                for artist in self.current_path_artist:
+                    if artist is not None:
+                        artist.remove()
+            else:
+                self.current_path_artist.remove()
             self.current_path_artist = None
 
     def refresh_map(self) -> None:
@@ -174,20 +324,61 @@ class MapRenderer:
         Clears and redraws the entire map with updated congestion values.
         """
         plt.clf()
+        fig = plt.gcf()
+        fig.set_facecolor(COLORS['background'])
+        ax = plt.gca()
+        ax.set_facecolor(COLORS['background'])
 
         positions = self.get_node_positions()
         my_labels = self._get_node_labels()
 
-        nx.draw(self.road_map.graph, pos=positions)
+        # Draw edges with styled appearance
+        nx.draw_networkx_edges(
+            self.road_map.graph,
+            pos=positions,
+            edge_color=COLORS['road'],
+            width=2.5,
+            alpha=0.7,
+            style='solid',
+        )
+
+        # Draw nodes with gradient-like effect
+        nx.draw_networkx_nodes(
+            self.road_map.graph,
+            pos=positions,
+            node_color=COLORS['node'],
+            node_size=400,
+            edgecolors=COLORS['node_edge'],
+            linewidths=2,
+            alpha=0.9,
+        )
+
+        # Draw labels
         nx.draw_networkx_labels(
-            self.road_map.graph.nodes,
+            self.road_map.graph,
             pos=positions,
             labels=my_labels,
-            font_color='black',
-            font_size=10
+            font_color=COLORS['text'],
+            font_size=8,
+            font_weight='bold',
+        )
+
+        # Add title
+        plt.title(
+            'Ambulance GIS - Real-time Navigation',
+            fontsize=14,
+            fontweight='bold',
+            color=COLORS['text'],
+            pad=15,
         )
 
         self._draw_legend()
+
+        # Remove axis clutter
+        ax.set_axis_off()
+        ax.margins(0.1)
+
+        plt.tight_layout()
 
 
 # Import for exception handling in draw_initial_map
