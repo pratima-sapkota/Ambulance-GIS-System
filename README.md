@@ -1,8 +1,10 @@
-# Ambulance-GIS-System
+# Ambulance GIS System
 
-## Simulation of a real-time system to find the best path to reach its destination.
+A real-time simulation system for finding optimal ambulance routes based on distance and traffic conditions.
 
-The main objective of this simulation is to demonstrate how an emergency vehicle can be guided to take the best path to reach its destination based upon the distance and traffic congestion at each junction.
+## Overview
+
+This application demonstrates how an emergency vehicle can be guided to take the best path to reach its destination. The simulation considers both distance and traffic congestion at each junction to calculate optimal routes dynamically.
 
 ## Features
 
@@ -13,104 +15,66 @@ The main objective of this simulation is to demonstrate how an emergency vehicle
 
 ## Requirements
 
-- Python 3.8 or greater
+- Python 3.8+
 
 ## Installation
 
-### Quick Install
-
-Install all dependencies using the requirements file:
-
-```bash
-pip install -r requirements.txt
-```
-
-### Using pip with pyproject.toml
+### Using pip (recommended)
 
 ```bash
 pip install -e .
 ```
 
-### Individual Packages
+### Using requirements file
 
-1. **SimPy** - Discrete-event simulation
-   ```bash
-   pip install simpy>=4.1.1
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-2. **SymPy** - Symbolic mathematics
-   ```bash
-   pip install sympy>=1.12
-   ```
+## Usage
 
-3. **Matplotlib** - Visualization
-   ```bash
-   pip install matplotlib>=3.8.0
-   ```
+### Run the application
 
-4. **NetworkX** - Graph representation
-   ```bash
-   pip install networkx>=3.2
-   ```
-
-## Running the Application
-
-### Option 1: Direct execution
 ```bash
 python main.py
 ```
 
-### Option 2: Module execution
-```bash
-python -m ambulance_gis
-```
+### Alternative methods
 
-### Option 3: If installed via pip
 ```bash
+# As a module
+python -m ambulance_gis
+
+# If installed via pip
 ambulance-gis
 ```
 
-## Development Setup
+## Development
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Urmila-m/Ambulance-GIS-System.git
-   cd Ambulance-GIS-System
-   ```
+### Setup
 
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/Urmila-m/Ambulance-GIS-System.git
+cd Ambulance-GIS-System
 
-3. Install development dependencies:
-   ```bash
-   pip install -r requirements-dev.txt
-   ```
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-### Development Tools
+# Install dev dependencies
+pip install -r requirements-dev.txt
+```
 
-- **Format code:**
-  ```bash
-  black ambulance_gis/
-  isort ambulance_gis/
-  ```
+### Commands
 
-- **Check code style:**
-  ```bash
-  flake8 ambulance_gis/
-  ```
-
-- **Type checking:**
-  ```bash
-  mypy ambulance_gis/
-  ```
-
-- **Run tests:**
-  ```bash
-  pytest
-  ```
+| Command | Description |
+|---------|-------------|
+| `black ambulance_gis/` | Format code |
+| `isort ambulance_gis/` | Sort imports |
+| `flake8 ambulance_gis/` | Check code style |
+| `mypy ambulance_gis/` | Type checking |
+| `pytest` | Run tests |
 
 ## Project Structure
 
@@ -118,33 +82,32 @@ ambulance-gis
 Ambulance-GIS-System/
 ├── ambulance_gis/           # Main package
 │   ├── __init__.py
-│   ├── __main__.py          # python -m ambulance_gis entry point
+│   ├── __main__.py          # Module entry point
 │   ├── core/                # Business logic
-│   │   ├── ambulance.py     # Ambulance movement and pathfinding
-│   │   ├── road_map.py      # Road network management
+│   │   ├── ambulance.py     # Ambulance pathfinding
+│   │   ├── road_map.py      # Road network
 │   │   └── simulation.py    # Simulation environment
 │   ├── ui/                  # User interface
-│   │   └── main_window.py   # Main application window
+│   │   └── main_window.py   # Main window
 │   ├── utils/               # Utilities
 │   │   ├── geometry.py      # Distance calculations
 │   │   ├── validators.py    # Input validation
-│   │   └── logger.py        # Logging configuration
+│   │   └── logger.py        # Logging
 │   └── visualization/       # Visualization
 │       └── map_renderer.py  # Map rendering
 ├── data/                    # Data files
-│   ├── points.csv           # Node/intersection data
-│   └── roads.csv            # Edge/road data
-├── config.py                # Application configuration
-├── main.py                  # Application launcher
-├── requirements.txt         # Production dependencies
-├── requirements-dev.txt     # Development dependencies
-├── pyproject.toml           # Project metadata and tool config
-└── README.md
+│   ├── points.csv           # Node data
+│   └── roads.csv            # Road data
+├── config.py                # Configuration
+├── main.py                  # Entry point
+├── requirements.txt         # Dependencies
+├── requirements-dev.txt     # Dev dependencies
+└── pyproject.toml           # Project metadata
 ```
 
 ## Screenshots
 
-![image info](./demo/input.png)
-![image info](./demo/path.png)
+![Input Selection](./demo/input.png)
+![Path Visualization](./demo/path.png)
 
-#Health and Urban Population Management
+### Quantum Hack - Health and Urban Population Management
